@@ -387,6 +387,32 @@ function ItemSlot:SetBorderQuality(quality)
 			border:Show()
 		end
 	end
+	
+	if self:GetItem() then
+		local itemId = tonumber(self:GetItem():match("item:(%d+):"))
+		local matched = false
+		
+		for i = 1, GetNumEquipmentSets() do
+			setname = GetEquipmentSetInfo(i)
+			IDs = GetEquipmentSetItemIDs(setname)
+			
+			for setSlotId,setItemId in pairs(IDs) do
+				if itemId == setItemId then
+					matched = true
+					break
+				end
+			end
+			
+			if matched == true then
+				break
+			end
+		end
+		
+		if matched == true then
+			border:SetVertexColor(0.96,0.55,0.73,self:GetHighlightAlpha())
+			border:Show()
+		end
+	end
 end
 
 function ItemSlot:UpdateBorder()
@@ -536,6 +562,10 @@ end
 
 function ItemSlot:HighlightingItemsByQuality()
 	return Addon.Settings:HighlightingItemsByQuality()
+end
+
+function ItemSlot:HighlightingItemsBelongingToEquipmentSet()
+	return Addon.Settings:HighlightingItemsBelongingToEquipmentSet()
 end
 
 function ItemSlot:HighlightUnusableItems()
