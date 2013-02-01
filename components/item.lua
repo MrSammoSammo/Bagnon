@@ -388,32 +388,13 @@ function ItemSlot:SetBorderQuality(quality)
 		end
 	end
 	
-	if self:GetItem() then
-		local itemId = tonumber(self:GetItem():match("item:(%d+):"))
-		local matched = false
-		
-		for i = 1, GetNumEquipmentSets() do
-			setname = GetEquipmentSetInfo(i)
-			IDs = GetEquipmentSetItemIDs(setname)
-			
-			for setSlotId,setItemId in pairs(IDs) do
-				if itemId == setItemId then
-					matched = true
-					break
-				end
-			end
-			
-			if matched == true then
-				break
-			end
-		end
-		
-		if matched == true then
-			border:SetVertexColor(0.96,0.55,0.73,self:GetHighlightAlpha())
-			border:Show()
-		end
+	if self:IsEquipmentSetItem() then
+		border:SetVertexColor(.96,.55,.73, self:GetHighlightAlpha())
+		border:Show()
 	end
 end
+
+
 
 function ItemSlot:UpdateBorder()
 	self:SetBorderQuality(select(4, self:GetInfo()))
@@ -598,6 +579,43 @@ function ItemSlot:IsQuestItem()
 	end
 end
 
+--returns true if the item is part of a player defined equipment set
+--return false if the item is null, not equippable, or not part of a set.
+function ItemSlot:IsEquipmentSetItem(item)
+	local item = self:GetItem()
+	
+	if not item then
+		return false
+	end
+	
+	local itemId = tonumber(self:GetItem():match("item:(%d+):"))
+	local _, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(itemId);
+	
+	-- if it's not equippable it's not part of a set.
+	if itemEquipLoc == "" then
+		return false
+	end
+	
+	local inEquipmentSet = false
+	
+	for i = 1, GetNumEquipmentSets() do
+		setname = GetEquipmentSetInfo(i)
+		IDs = GetEquipmentSetItemIDs(setname)
+		
+		for setSlotId,setItemId in pairs(IDs) do
+			if itemId == setItemId then
+				inEquipmentSet = true
+				break
+			end
+		end
+		
+		if inEquipmentSet == true then
+			break
+		end
+	end
+	
+	return inEquipmentSet
+end
 
 --[[ Item Slot Coloring ]]--
 
